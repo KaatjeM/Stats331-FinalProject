@@ -1,5 +1,6 @@
 ---
 title: "GitHub-use-FPs"
+authors: "Kaatje Matthews, Jena Weitzman, Alie Hall, Alex Tran"
 format: html
 editor: visual
 self-contained: true
