@@ -11,8 +11,18 @@ library(tidyverse)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
 ```
-
+## PivotLonger
 ```{r}
-# 
+energy_long <- energy |> 
+  pivot_longer(cols = `1960`:`2015`,
+               names_to = "Year",
+               values_to = "Energy_Use")
+
+# gdp_long <- gdp |> 
+ # mutate(across(.cols = everything(),
+              #  .fns = str_replace('k', '000') |> 
+ # pivot_longer(cols = `1960`:`2015`,
+             #  names_to = "Year",
+             #  values_to = "GDP")
 ```
 
