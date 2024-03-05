@@ -1,7 +1,0 @@
----
-title: "STATS331-FinalProj"
-format: html
-editor: source
-self-contained: true
----
-
