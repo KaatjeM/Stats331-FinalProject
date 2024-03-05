@@ -8,7 +8,11 @@ editor: source
 ## Import Data
 ```{r}
 library(tidyverse)
-#gdp <-
-#energy <-
+gdp <- read_csv(file = "gdp_pcap.csv")
+energy <- read_csv(file = "energy_use_per_person.csv")
+```
+
+```{r}
+# 
 ```
 
