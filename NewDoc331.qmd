@@ -15,42 +15,59 @@ energy <- read_csv(file = "energy_use_per_person.csv")
 
 ## Helper Function
 ```{r}
-data_cleaning <- function(og_data, new_data, columns, names, values){
-  {{ new_data }} <- {{ og_data }} |> 
-  select(country, `1960`:`2015`) |>
-  pivot_longer(cols := {{ columns }},
-               names_to := {{ names }},
-               values_to := {{ values }})
- #   data <- data |>
-#    mutate(col = str_replace_all(string = col,
-       #                                pattern = 'k|K',
-          #                             replacement = '000'))
+
+data_cleaning <- function(og_data, new_data, variables, names, values){
+  
+  new_data <- og_data |>
+    select(country, {{ variables }}) |>
+    pivot_longer(cols = {{ variables }},
+                 names_to = {{ names }},
+                 values_to = {{ values }})
+  
   return(new_data)
+  
+}
+
+k_to_val <- function(data, variable){
+  
+  data <- data |>
+    mutate(across(.cols = {{ variable }},
+                  .fns = ~ ifelse(str_detect(string = .x,
+                                             pattern = "k|K"),
+                                  1000*as.numeric(str_remove_all(string = .x,
+                                                                 pattern = "k|K")),
+                                  as.numeric(.x)
+                                  )))
+  
+  return(data)
   
 }
 ```
 
 
-## PivotLonger
+## Apply Functions
 ```{r}
-map_chr(.x = `1960`:`2015`,
-        .f = ~ data_cleaning(og_data = energy,
-                             new_data = test,
-                             columns = .x,
-                             names = "Year",
-                             values = "Energy_Use"))
 
+energy_long <- data_cleaning(og_data = energy,
+                             new_data = energy_long,
+                             variables = `1960`:`2015`,
+                             names = "year",
+                             values = "energy_use")
 
+energy_long <- k_to_val(data = energy_long,
+                        variable = "energy_use")
 
-energy_long <- energy |> 
-  pivot_longer(cols = `1960`:`2015`,
-               names_to = "Year",
-               values_to = "Energy_Use")
+gdp_long <- data_cleaning(og_data = gdp,
+                          new_data = gdp_long,
+                          variables = `1960`:`2015`,
+                          names = "year",
+                          values = "gdp")
 
-gdp_long <- gdp |> 
-  select(country, `1960`:`2015`) |> 
-  pivot_longer(cols = `1960`:`2015`,
-               names_to = "Year",
-               values_to = "GDP")
+gdp_long <- k_to_val(data = gdp_long,
+                          variable = "gdp")
+
+final_data <- full_join(energy_long,
+                        gdp_long)
+
 ```
 
