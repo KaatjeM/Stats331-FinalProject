@@ -8,21 +8,49 @@ editor: source
 ## Import Data
 ```{r}
 library(tidyverse)
+library(rlang)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
 ```
+
+## Helper Function
+```{r}
+data_cleaning <- function(og_data, new_data, columns, names, values){
+  {{ new_data }} <- {{ og_data }} |> 
+  select(country, `1960`:`2015`) |>
+  pivot_longer(cols := {{ columns }},
+               names_to := {{ names }},
+               values_to := {{ values }})
+ #   data <- data |>
+#    mutate(col = str_replace_all(string = col,
+       #                                pattern = 'k|K',
+          #                             replacement = '000'))
+  return(new_data)
+  
+}
+```
+
+
 ## PivotLonger
 ```{r}
+map_chr(.x = `1960`:`2015`,
+        .f = ~ data_cleaning(og_data = energy,
+                             new_data = test,
+                             columns = .x,
+                             names = "Year",
+                             values = "Energy_Use"))
+
+
+
 energy_long <- energy |> 
   pivot_longer(cols = `1960`:`2015`,
                names_to = "Year",
                values_to = "Energy_Use")
 
-# gdp_long <- gdp |> 
- # mutate(across(.cols = everything(),
-              #  .fns = str_replace('k', '000') |> 
- # pivot_longer(cols = `1960`:`2015`,
-             #  names_to = "Year",
-             #  values_to = "GDP")
+gdp_long <- gdp |> 
+  select(country, `1960`:`2015`) |> 
+  pivot_longer(cols = `1960`:`2015`,
+               names_to = "Year",
+               values_to = "GDP")
 ```
 
