@@ -54,3 +54,19 @@ gdp_long <- gdp |>
                values_to = "GDP")
 ```
 
+### Data and Variable Description
+
+## Data set #1: GDP Per Capita
+The data set gdp_pcap.csv records the GDP per capita for various countries in a given year, or the value of everything produced in a country each year, divided by the country's population.This particular data sets records the GDP per capita of 195 countries in each year from 1800 to 2023, as well as the predicted GDP per capita in each year from 2024 until 2100. There are 195 rows in this data set, each one representing a different country, and 302 columns, each one representing a different year.
+
+## Data set #2: Energy Use per Person
+The dataset energy_use_per_person.csv records the energy use per person in various countries, for each year from 1960 to 2015. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
+
+
+
+### Hypothesized Relationship
+We believe that the relationship between GDP and Energy use per Person will be positively correlated, meaning that a larger GDP for a country will lead to more energy use per person. We have elected to use the log scale of energy use per person, as doing so will create a stronger linear relationship between the variables, as seen through the gapminder tools.
+In addition, through the years, with a rise in accessibility of sustainable energy, we believe that the overall trend of energy use per person will be positive. In addition, the rise of globalization has increased GDPs over time, leading to another positive trend.
+
+### Data cleaning process and decision making
+Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the ugly columns that they were in before. We also decided that in the gdp per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2015. Additionally, the observations in the gdp per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said “4k” to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a string replace function to replace all instances of the letter “k” with “000”, to represent one thousand numerically.
