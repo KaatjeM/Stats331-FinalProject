@@ -4,6 +4,11 @@ authors: "Kaatje Matthews, Alex Tran, Jena Weitzman, Alie Hall"
 format: html
 editor: source
 code-fold: true
+execute: 
+  error: true
+  echo: true
+  message: false
+  warning: false
 ---
 
 ## Import Data
@@ -70,8 +75,9 @@ gdp_long <- data_cleaning(og_data = gdp,
 gdp_long <- k_to_val(data = gdp_long,
                           variable = "gdp")
 
-final_data <- full_join(energy_long,
-                        gdp_long)
+final_data <- inner_join(energy_long,
+                         gdp_long, 
+                         by = join_by(country, year))
 
 ```
 
@@ -97,24 +103,18 @@ Since each year in both of the data sets was its own separate column, making the
 ### Linear Regression
 ```{r}
 #Averaged values across the years
-final_data |>
+Averaged_data <- final_data |>
   group_by(country) |>
   summarise(avg_energy = mean(energy_use),
-            avg_gdp = mean(gdp)) |>
+            avg_gdp = mean(gdp))
+
+Averaged_data |>
   ggplot(aes(x=avg_gdp, 
              y=avg_energy)) +
   geom_point() +
   geom_smooth(method = "lm")
 ```
 
-```{r}
-#Every Year, every contury, one plot
-final_data |>
-  ggplot(aes(x=gdp, 
-             y=energy_use)) +
-  geom_point() +
-  geom_smooth(method = "lm")
-```
 
 ```{r}
 gif <- final_data |>
@@ -131,9 +131,30 @@ gif <- final_data |>
 animate(gif, renderer = gifski_renderer(), fps = 7)
 ```
 
+## Regression Model
+```{r}
+energy_gdp_model <- lm(avg_energy ~ avg_gdp, 
+                       data = Averaged_data)
+energy_gdp_model$coefficients
+```
+## Model Fit
+```{r}
+energy_gdp_model |>
+  broom::augment() |>
+  summarize(variance_energy = var(avg_energy),
+            variance_fitted = var(.fitted),
+            variance_residual = var(.resid))
+```
+
 
 to do:
-- linear reg
+
+- Ask all question about linear regress (see project details)
+
+- Labels, costumize scatterplots (make it look pretty)
+
 - take out log info in text
+
 - update timeframe in text
-- Explain NAs
+
+-MAKE SURE ALL QUESTIONS FROM THE COMMENTS FROM THE PROJECT PROPOSAL ARE RESOLVED
