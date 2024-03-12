@@ -4,6 +4,7 @@ authors: "Kaatje Matthews, Alex Tran, Jena Weitzman, Alie Hall"
 format: html
 editor: source
 code-fold: true
+embed-resources: true
 execute: 
   error: true
   echo: true
@@ -12,6 +13,7 @@ execute:
 ---
 
 ## Import Data
+
 ```{r setup}
 #| include: false
 library(tidyverse)
@@ -23,6 +25,7 @@ energy <- read_csv(file = "energy_use_per_person.csv")
 ```
 
 ## Helper Function
+
 ```{r}
 
 data_cleaning <- function(og_data, new_data, variables, names, values){
@@ -53,8 +56,8 @@ k_to_val <- function(data, variable){
 }
 ```
 
-
 ## Apply Functions
+
 ```{r}
 
 energy_long <- data_cleaning(og_data = energy,
@@ -81,26 +84,29 @@ final_data <- inner_join(energy_long,
 
 ```
 
+## Introduction
+
 ### Data and Variable Description
 
-## Data set #1: GDP Per Capita
+#### Data set #1: GDP Per Capita
+
 The data set gdp_pcap.csv records the GDP per capita for various countries in a given year, or the value of everything produced in a country each year, divided by the country's population.This particular data sets records the GDP per capita of 195 countries in each year from 1800 to 2023, as well as the predicted GDP per capita in each year from 2024 until 2100. There are 195 rows in this data set, each one representing a different country, and 302 columns, each one representing a different year.
 
-## Data set #2: Energy Use per Person
+#### Data set #2: Energy Use per Person
+
 The dataset energy_use_per_person.csv records the energy use per person in various countries, for each year from 1960 to 2015. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
 
-
-
 ### Hypothesized Relationship
-We believe that the relationship between GDP and Energy use per Person will be positively correlated, meaning that a larger GDP for a country will lead to more energy use per person. We have elected to use the log scale of energy use per person, as doing so will create a stronger linear relationship between the variables, as seen through the gapminder tools.
-In addition, through the years, with a rise in accessibility of sustainable energy, we believe that the overall trend of energy use per person will be positive. In addition, the rise of globalization has increased GDPs over time, leading to another positive trend.
+We are setting our explanatory variable to be GDP per capita, and our response variable as energy use per person.We believe that the relationship between GDP and energy use per Person will be positively correlated, meaning that a larger GDP for a country will lead to more energy use per person. We have elected to use the log scale of energy use per person, as doing so will create a stronger linear relationship between the variables, as seen through the gapminder tools. In addition, through the years, with a rise in accessibility of sustainable energy, we believe that the overall trend of energy use per person will be positive. In addition, the rise of globalization has increased GDPs over time, leading to another positive trend.
 
 ### Data cleaning process and decision making
-Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the ugly columns that they were in before. We also decided that in the gdp per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2015. Additionally, the observations in the gdp per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said “4k” to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a string replace function to replace all instances of the letter “k” with “000”, to represent one thousand numerically.
 
-
+Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the ugly columns that they were in before. We also decided that in the gdp per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2015. Additionally, the observations in the gdp per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said "4k" to represent a GDP of \$4,000, so in order to make the data consistent for the purpose of analyzing, we used a string replace function to replace all instances of the letter "k" with "000", to represent one thousand numerically.
 
 ### Linear Regression
+
+In our linear regression, we have defined GDP per capita as our explanatory variable, and energy use per person as our response variable.
+
 ```{r}
 #Averaged values across the years
 Averaged_data <- final_data |>
@@ -114,7 +120,6 @@ Averaged_data |>
   geom_point() +
   geom_smooth(method = "lm")
 ```
-
 
 ```{r}
 gif <- final_data |>
@@ -132,12 +137,16 @@ animate(gif, renderer = gifski_renderer(), fps = 7)
 ```
 
 ## Regression Model
+
 ```{r}
 energy_gdp_model <- lm(avg_energy ~ avg_gdp, 
                        data = Averaged_data)
 energy_gdp_model$coefficients
 ```
+From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. Put more simply, our linear regression model tells us that for every 1 unit increase in GDP per capita, the predicted energy use per person will increase by 0.1214 units.
+
 ## Model Fit
+
 ```{r}
 energy_gdp_model |>
   broom::augment() |>
@@ -146,15 +155,16 @@ energy_gdp_model |>
             variance_residual = var(.resid))
 ```
 
-
 to do:
 
-- Ask all question about linear regress (see project details)
+-   Ask all question about linear regress (see project details)
 
-- Labels, costumize scatterplots (make it look pretty)
+-   Labels, costumize scatterplots (make it look pretty)
 
-- take out log info in text
+-   take out log info in text
 
-- update timeframe in text
+-   update timeframe in text
+
+-   On regression model section (specifically in the part where we are interpreting the regression model) what are the units for GDP per capita and energy use?
 
 -MAKE SURE ALL QUESTIONS FROM THE COMMENTS FROM THE PROJECT PROPOSAL ARE RESOLVED
