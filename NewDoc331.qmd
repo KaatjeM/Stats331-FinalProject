@@ -3,12 +3,16 @@ title: "NewDoc331"
 authors: "Kaatje Matthews, Alex Tran, Jena Weitzman, Alie Hall"
 format: html
 editor: source
+code-fold: true
 ---
 
 ## Import Data
-```{r}
+```{r setup}
+#| include: false
 library(tidyverse)
 library(rlang)
+library(gganimate)
+library(gifski)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
 ```
@@ -50,7 +54,7 @@ k_to_val <- function(data, variable){
 
 energy_long <- data_cleaning(og_data = energy,
                              new_data = energy_long,
-                             variables = `1960`:`2015`,
+                             variables = `1975`:`2013`,
                              names = "year",
                              values = "energy_use")
 
@@ -59,7 +63,7 @@ energy_long <- k_to_val(data = energy_long,
 
 gdp_long <- data_cleaning(og_data = gdp,
                           new_data = gdp_long,
-                          variables = `1960`:`2015`,
+                          variables = `1975`:`2013`,
                           names = "year",
                           values = "gdp")
 
@@ -87,3 +91,49 @@ In addition, through the years, with a rise in accessibility of sustainable ener
 
 ### Data cleaning process and decision making
 Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the ugly columns that they were in before. We also decided that in the gdp per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2015. Additionally, the observations in the gdp per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said “4k” to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a string replace function to replace all instances of the letter “k” with “000”, to represent one thousand numerically.
+
+
+
+### Linear Regression
+```{r}
+#Averaged values across the years
+final_data |>
+  group_by(country) |>
+  summarise(avg_energy = mean(energy_use),
+            avg_gdp = mean(gdp)) |>
+  ggplot(aes(x=avg_gdp, 
+             y=avg_energy)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+#Every Year, every contury, one plot
+final_data |>
+  ggplot(aes(x=gdp, 
+             y=energy_use)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+gif <- final_data |>
+  mutate(year = as.integer(year)) |>
+  ggplot(aes(x=gdp, 
+             y=energy_use)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  
+  labs(title = 'Year: {year}', x = 'GDP per capita', y = 'energy use') +
+  transition_time(year) +
+  ease_aes('linear')
+
+animate(gif, renderer = gifski_renderer(), fps = 7)
+```
+
+
+to do:
+- linear reg
+- take out log info in text
+- update timeframe in text
+- Explain NAs
