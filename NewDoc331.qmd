@@ -159,12 +159,12 @@ to do:
 
 -   Ask all question about linear regress (see project details)
 
--   Labels, costumize scatterplots (make it look pretty)
+-   Labels, customize scatterplots (make it look pretty)
 
 -   take out log info in text
 
 -   update timeframe in text
 
--   On regression model section (specifically in the part where we are interpreting the regression model) what are the units for GDP per capita and energy use?
+-   On regression model section (specifically in the part where we are         interpreting the regression model) what are the units for GDP per          capita and energy use?
 
 -MAKE SURE ALL QUESTIONS FROM THE COMMENTS FROM THE PROJECT PROPOSAL ARE RESOLVED
