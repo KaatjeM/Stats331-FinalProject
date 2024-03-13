@@ -1,5 +1,5 @@
 ---
-title: "NewDoc331"
+title: "Final Project - Written Report"
 authors: "Kaatje Matthews, Alex Tran, Jena Weitzman, Alie Hall"
 format: html
 editor: source
@@ -11,24 +11,22 @@ execute:
   message: false
   warning: false
 ---
-
-## Import Data
-
 ```{r setup}
-#| include: false
+
+# Load packages
+
 library(tidyverse)
 library(rlang)
 library(gganimate)
 library(gifski)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
-```
 
-## Helper Function
-
-```{r}
+# 1st helper function
 
 data_cleaning <- function(og_data, new_data, variables, names, values){
+  
+  # Select variables of interest + pivot longer
   
   new_data <- og_data |>
     select(country, {{ variables }}) |>
@@ -40,7 +38,11 @@ data_cleaning <- function(og_data, new_data, variables, names, values){
   
 }
 
+# 2nd helper function
+
 k_to_val <- function(data, variable){
+  
+  # Turn values of _k into integers
   
   data <- data |>
     mutate(across(.cols = {{ variable }},
@@ -54,11 +56,8 @@ k_to_val <- function(data, variable){
   return(data)
   
 }
-```
 
-## Apply Functions
-
-```{r}
+# Transform energy dataset into energy_long
 
 energy_long <- data_cleaning(og_data = energy,
                              new_data = energy_long,
@@ -66,8 +65,12 @@ energy_long <- data_cleaning(og_data = energy,
                              names = "year",
                              values = "energy_use")
 
+# Transform _k values
+
 energy_long <- k_to_val(data = energy_long,
                         variable = "energy_use")
+
+# Transform gdp dataset into gdp_long
 
 gdp_long <- data_cleaning(og_data = gdp,
                           new_data = gdp_long,
@@ -75,8 +78,12 @@ gdp_long <- data_cleaning(og_data = gdp,
                           names = "year",
                           values = "gdp")
 
+# Transform _k values
+
 gdp_long <- k_to_val(data = gdp_long,
                           variable = "gdp")
+
+# Join both datasets together
 
 final_data <- inner_join(energy_long,
                          gdp_long, 
@@ -84,9 +91,15 @@ final_data <- inner_join(energy_long,
 
 ```
 
-## Introduction
+## Project Proposal
 
-### Data and Variable Description
+#### Gapminder: GDP Per Capita Vs. Energy Use Per Person
+
+Gapminder is an independent Swedish foundation that collects reliable data on global topics in order to systematically combat "devastating ignorance with a fact-based worldview everyone can understand." They do this by combining data from multiple reliable sources in order to give the everyday person a more accurate view of what the world is like.
+
+More information about Gapminder can be found [here](https://www.gapminder.org/).
+
+In particular, our group decided to investigate the relationship between GDP Per Capita, a measure of purchasing power, and Energy Use Per Person.
 
 #### Data set #1: GDP Per Capita
 
@@ -94,21 +107,25 @@ The data set gdp_pcap.csv records the GDP per capita for various countries in a 
 
 #### Data set #2: Energy Use per Person
 
-The dataset energy_use_per_person.csv records the energy use per person in various countries, for each year from 1960 to 2015. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. Gapminder labels the units of measurement for energy use per person as kg of oil equivalent per capita. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
+The dataset energy_use_per_person.csv records the energy use per person in various countries, for each year from 1960 to 2013. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. Gapminder labels the units of measurement for energy use per person as kg of oil equivalent per capita. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
 
-### Hypothesized Relationship
+#### Hypothesized Relationship
+
 We are setting our explanatory variable to be GDP per capita, and our response variable as energy use per person. We believe that the relationship between GDP and energy use per Person will be positively correlated, meaning that a larger GDP for a country will be associated with more energy use per person. In addition, through the years, with a rise in accessibility of sustainable energy, we believe that the overall trend of energy use per person will be positive. Furthermore, the rise of globalization has increased GDPs over time, leading to another positive trend.
 
-### Data cleaning process and decision making
+#### Data cleaning process and decision making
 
-Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the ugly columns that they were in before. We also decided that in the gdp per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2015. Additionally, the observations in the gdp per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said "4k" to represent a GDP of \$4,000, so in order to make the data consistent for the purpose of analyzing, we used a string replace function to replace all instances of the letter "k" with "000", to represent one thousand numerically.
+Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the difficult-to-read columns that they were in before. We also decided that in the GDP per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2013. Additionally, the observations in the GDP per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said "4k" to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a function to remove all instances of the letter "k" and multiple the value by 1,000 to represent the "k" numerically.
 
-### Linear Regression
+## Linear Regression
+
+#### Visualization 1: Scatterplot
 
 In our linear regression, we have defined GDP per capita as our explanatory variable, and energy use per person as our response variable. To observe the relationship between the two, we averaged the data points over years for each country and created a scatter plot with average GDP in the x-axis and average energy use in the y-axis.
 
 ```{r}
-#Averaged values across the years
+# Average values across the years
+
 averaged_data <- final_data |>
   group_by(country) |>
   summarise(avg_energy = mean(energy_use),
@@ -128,6 +145,8 @@ averaged_data |>
 
 ```
 This scatter plot with a line fitted to it suggests that there is a positive relationship between the two, insinuating that, as GDP increases, energy use increases and that countries with a greater GDP may have a higher energy use per person.
+
+#### Visualization 2: GIF
 
 To further explore the relationship between the two, we decided to create a GIF comparing GDP per capita and energy use across the different years of interest.
 
@@ -149,17 +168,22 @@ animate(gif, renderer = gifski_renderer(), fps = 7)
 ```
 The GIF also shows similar patterns about the relationship between GDP per capita and energy use per person such as the positive relationship and energy use increasing as GDP increases.
 
-## Regression Model
+#### Regression Model
 
 Next, we will fit a linear regression model in order to derive the estimated regression equation.
+
 ```{r}
 energy_gdp_model <- lm(avg_gdp ~ avg_energy, 
                        data = averaged_data)
 energy_gdp_model$coefficients
 ```
-From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 5.916165 kg of oil equivalent per capita (energy use).
+From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. 
 
-## Model Fit
+Equation: y = 5.916165*x + 5114.215069
+
+Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 5.916165 kg of oil equivalent per capita (energy use).
+
+#### Model Fit
 
 To test how well this linear regression model, we will look at the amount of variability that can be accounted for by our model.
 
