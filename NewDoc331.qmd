@@ -206,13 +206,14 @@ Based on the proportion of variability that can be accounted for by our model, ~
 
 #### Creating Simulated Data from Linear Model
 ```{r}
+set.seed(1234)
 
 predicted_data <- predict(energy_gdp_model)
 predicted_data_resd <- residuals(energy_gdp_model)
 predicted_std_error <- sigma(energy_gdp_model)
-predicted_data <- predicted_data + rnorm(length(predicted_data), mean = 0, sd = predicted_std_error)
+predicted_data <- predicted_data + rnorm(length(predicted_data), mean = mean(predicted_data), sd = predicted_std_error)
 
-predicted_data <- as.data.frame(predicted_data)
+predicted_data <- as.data.frame(predicted_data) 
 ```
 
 
@@ -220,33 +221,37 @@ predicted_data <- as.data.frame(predicted_data)
 ```{r}
 plot1 <- ggplot(predicted_data,
        mapping = aes(
-         x = predicted_data
+         x = predicted_data,
        ))+
   geom_histogram()+
   labs(
     x = "Average GDP - Simulated",
     title = "Simulated Data: Average GDP vs Count"
-  )
+  )+
+  theme_bw()
+
+
 
 plot2 <- ggplot(averaged_data,
        mapping = aes(
-         x = avg_gdp
+         x = avg_gdp,
        ))+
   geom_histogram()+
   labs(
     x = "Average GDP - Observed",
     title = "Observed Data: Average GDP vs Count"
-  )
+  )+
+  theme_bw()
 
 grid.arrange(plot1, plot2)
 ```
 
 
-TO-DO:
+## TO-DO:
 Visualization of simulated data
-- Discussion of similarities and differences between observed and simulated.
+- Discussion of similarities and differences between observed and simulated -- not writing rn because im not sure if i did it right :(
 
-R^2 distribution
+R^2 distribution 
 - Uses map() to simulate many values and fit a linear regression between obs ~ sim
 - Plot of R^2
 - Discussion of R^2 and what this means for the model fit
