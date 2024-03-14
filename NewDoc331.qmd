@@ -20,6 +20,7 @@ library(rlang)
 library(gganimate)
 library(gifski)
 library(gridExtra)
+library(patchwork)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
 
@@ -121,8 +122,10 @@ Since each year in both of the data sets was its own separate column, making the
 ## Linear Regression
 
 #### Visualization 1: Scatterplot
+We decided to use linear regression to model the relationship between GDP per capita and energy use per person. In our linear regression, we have defined GDP per capita as our explanatory variable, and energy use per person as our response variable. To observe the relationship between the two, we averaged the data points over years for each country and created a scatter plot with average GDP in the x-axis and average energy use in the y-axis.
 
-In our linear regression, we have defined GDP per capita as our explanatory variable, and energy use per person as our response variable. To observe the relationship between the two, we averaged the data points over years for each country and created a scatter plot with average GDP in the x-axis and average energy use in the y-axis.
+#### Linear Regression Conditions
+In order to apply a linear regression model to our data, me must make sure that our data satisfies the four conditions of linear regression. Our first condition, linearity, is met in this case, because the relationship between the explanatory and response variable is proportional to one another. Our second condition, independence, is met because the result of GDP per capita each year is independent of one another for each recorded observation, and energy use per person each year is independent of one another for each recorded observation. Our third condition, normality, is met because for both GDP per capita and energy use per person have more than 30 observations, by the Central Limit Theorem. Lastly, our fourth condition of equal variance is met, because our residual plot shows no apparent pattern.
 
 ```{r}
 # Average values across the years
@@ -145,7 +148,7 @@ averaged_data |>
   )
 
 ```
-This scatter plot with a line fitted to it suggests that there is a positive relationship between the two, insinuating that, as GDP increases, energy use increases and that countries with a greater GDP may have a higher energy use per person.
+Our linear regression model calculated by R reveals a strong, positive, and linear relationship between average GDP per capita and energy use per person, insinuating that, as GDP increases, energy use increases and that countries with a greater GDP may have a higher energy use per person. Visually, there are a couple unusual points. The point that is the highest up and to the right, at which average GDP per capita is just above 75000, and average energy use per person is about 15000, is quite far from the line of best fit. Another unusual point is the point at which average GDP per capita is about 35000, and average energy use is 10000.
 
 #### Visualization 2: GIF
 
@@ -174,9 +177,11 @@ The GIF also shows similar patterns about the relationship between GDP per capit
 Next, we will fit a linear regression model in order to derive the estimated regression equation.
 
 ```{r}
-energy_gdp_model <- lm(avg_gdp ~ avg_energy, 
+energy_gdp_model <- lm(avg_energy ~ avg_gdp, 
                        data = averaged_data)
 energy_gdp_model$coefficients
+
+broom::tidy(energy_gdp_model)
 ```
 From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. 
 
@@ -205,45 +210,57 @@ Based on the proportion of variability that can be accounted for by our model, ~
 ## Simulation
 
 #### Creating Simulated Data from Linear Model
+
 ```{r}
 set.seed(1234)
 
-predicted_data <- predict(energy_gdp_model)
-predicted_data_resd <- residuals(energy_gdp_model)
-predicted_std_error <- sigma(energy_gdp_model)
-predicted_data <- predicted_data + rnorm(length(predicted_data), mean = mean(predicted_data), sd = predicted_std_error)
-
-predicted_data <- as.data.frame(predicted_data) 
+simulated_data <- averaged_data |>
+  #remove rows with nas
+  filter(!is.na(avg_energy)) |>
+  mutate(predicted = predict(energy_gdp_model)) |>
+  mutate(simulated = predicted + rnorm(length(predicted), 
+                                       mean = 0, 
+                                       sd = sigma(energy_gdp_model))
+         )
+  #use mutate (add column) wuth predict to obtain predicted
 ```
 
 
 #### Visualizing Simulated Data
 ```{r}
-plot1 <- ggplot(predicted_data,
-       mapping = aes(
-         x = predicted_data,
-       ))+
-  geom_histogram()+
-  labs(
-    x = "Average GDP - Simulated",
-    title = "Simulated Data: Average GDP vs Count"
-  )+
-  theme_bw()
-
-
-
-plot2 <- ggplot(averaged_data,
+plot1 <- ggplot(simulated_data,
        mapping = aes(
          x = avg_gdp,
+         y = simulated
        ))+
-  geom_histogram()+
+  geom_point()+
+  geom_smooth(method = "lm") +
   labs(
-    x = "Average GDP - Observed",
-    title = "Observed Data: Average GDP vs Count"
+    title = "GDP Per Capita Vs. Simulated Energy Use Per Person",
+    subtitle = "Simulated Average Energy Use",
+    x = "Average GDP",
+    y = NULL
   )+
   theme_bw()
 
-grid.arrange(plot1, plot2)
+
+
+plot2 <- ggplot(simulated_data,
+       mapping = aes(
+         x = avg_gdp,
+         y = avg_energy
+       ))+
+  geom_point()+
+  geom_smooth(method = "lm") +
+  labs(
+    title = "GDP Per Capita Vs. Observed Energy Use Per Person",
+    subtitle = "Observed Average Energy Use",
+    x = "Average GDP",
+    y = NULL
+  )+
+  theme_bw()
+
+plot1 + plot2 + plot_layout(nrow = 1)
 ```
 
 
@@ -255,3 +272,7 @@ R^2 distribution
 - Uses map() to simulate many values and fit a linear regression between obs ~ sim
 - Plot of R^2
 - Discussion of R^2 and what this means for the model fit
+
+- MAKE ANIMATION THEN AVERAGE
+
+- MAKE A RESIDUAL PLOT TO PROVE EQUAL VARIANCE (EQUAL VARIANCE CONDITION IN LINEAR REGRESSION)
