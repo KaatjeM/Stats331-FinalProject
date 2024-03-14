@@ -197,3 +197,36 @@ energy_gdp_model |>
            (variance_energy + variance_fitted + variance_residual))
 ```
 Based on the proportion of variability that can be accounted for by our model, ~72.4% of the total variability can be attributed to our model, which is generally a good sign that our model fits well.
+
+
+
+
+## Simulation
+
+#### Creating Simulated Data from Linear Model
+```{r}
+
+predicted_data <- predict(energy_gdp_model)
+
+predicted_data_resd <- residuals(energy_gdp_model)
+
+predicted_std_error <- sigma(energy_gdp_model)
+
+predicted_data <- predicted_data + rnorm(length(predicted_data), mean = 0, sd = predicted_std_error)
+
+head(predicted_data)
+```
+
+
+#### Visualizing Simulated Data
+
+TO-DO:
+Visualization of simulated data
+- Either side by side histograms (obs vs simulated) or side by side scatterplots (obs vs explanatory and sim vs explanatory).
+- Plot customizations (labels, colors, factor levels, etc.)
+- Discussion of similarities and differences between observed and simulated.
+
+R^2 distribution
+- Uses map() to simulate many values and fit a linear regression between obs ~ sim
+- Plot of R^2
+- Discussion of R^2 and what this means for the model fit
