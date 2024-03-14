@@ -19,6 +19,7 @@ library(tidyverse)
 library(rlang)
 library(gganimate)
 library(gifski)
+library(gridExtra)
 gdp <- read_csv(file = "gdp_pcap.csv")
 energy <- read_csv(file = "energy_use_per_person.csv")
 
@@ -207,23 +208,42 @@ Based on the proportion of variability that can be accounted for by our model, ~
 ```{r}
 
 predicted_data <- predict(energy_gdp_model)
-
 predicted_data_resd <- residuals(energy_gdp_model)
-
 predicted_std_error <- sigma(energy_gdp_model)
-
 predicted_data <- predicted_data + rnorm(length(predicted_data), mean = 0, sd = predicted_std_error)
 
-head(predicted_data)
+predicted_data <- as.data.frame(predicted_data)
 ```
 
 
 #### Visualizing Simulated Data
+```{r}
+plot1 <- ggplot(predicted_data,
+       mapping = aes(
+         x = predicted_data
+       ))+
+  geom_histogram()+
+  labs(
+    x = "Average GDP - Simulated",
+    title = "Simulated Data: Average GDP vs Count"
+  )
+
+plot2 <- ggplot(averaged_data,
+       mapping = aes(
+         x = avg_gdp
+       ))+
+  geom_histogram()+
+  labs(
+    x = "Average GDP - Observed",
+    title = "Observed Data: Average GDP vs Count"
+  )
+
+grid.arrange(plot1, plot2)
+```
+
 
 TO-DO:
 Visualization of simulated data
-- Either side by side histograms (obs vs simulated) or side by side scatterplots (obs vs explanatory and sim vs explanatory).
-- Plot customizations (labels, colors, factor levels, etc.)
 - Discussion of similarities and differences between observed and simulated.
 
 R^2 distribution
