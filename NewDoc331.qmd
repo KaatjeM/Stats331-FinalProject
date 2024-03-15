@@ -145,7 +145,8 @@ averaged_data |>
     subtitle = "Average Energy Use",
     x = "Average GDP",
     y = NULL
-  )
+  ) +
+  theme_bw()
 
 ```
 Our linear regression model calculated by R reveals a strong, positive, and linear relationship between average GDP per capita and energy use per person, insinuating that, as GDP increases, energy use increases and that countries with a greater GDP may have a higher energy use per person. Visually, there are a couple unusual points. The point that is the highest up and to the right, at which average GDP per capita is just above 75000, and average energy use per person is about 15000, is quite far from the line of best fit. Another unusual point is the point at which average GDP per capita is about 35000, and average energy use is 10000.
@@ -166,7 +167,8 @@ gif <- final_data |>
        x = 'GDP per capita',
        y = 'Energy use') +
   transition_time(year) +
-  ease_aes('linear')
+  ease_aes('linear') +
+  theme_bw()
 
 animate(gif, renderer = gifski_renderer(), fps = 7)
 ```
@@ -202,7 +204,7 @@ energy_gdp_model |>
   mutate(prop = (variance_energy + variance_fitted) / 
            (variance_energy + variance_fitted + variance_residual))
 ```
-Based on the proportion of variability that can be accounted for by our model, ~72.4% of the total variability can be attributed to our model, which is generally a good sign that our model fits well.
+Based on the proportion of variability that can be accounted for by our model, ~85.92% of the total variability can be attributed to our model, which is generally a good sign that our model fits well.
 
 
 
@@ -222,7 +224,7 @@ simulated_data <- averaged_data |>
                                        mean = 0, 
                                        sd = sigma(energy_gdp_model))
          )
-  #use mutate (add column) wuth predict to obtain predicted
+  #use mutate (add column) with predict to obtain predicted
 ```
 
 
@@ -232,15 +234,17 @@ plot1 <- ggplot(simulated_data,
        mapping = aes(
          x = avg_gdp,
          y = simulated
-       ))+
-  geom_point()+
+       )) +
+  geom_point() +
   geom_smooth(method = "lm") +
   labs(
     title = "GDP Per Capita Vs. Simulated Energy Use Per Person",
     subtitle = "Simulated Average Energy Use",
     x = "Average GDP",
     y = NULL
-  )+
+  ) +
+  xlim(0, 100000) +
+  ylim(-5000, 20000) +
   theme_bw()
 
 
@@ -249,7 +253,7 @@ plot2 <- ggplot(simulated_data,
        mapping = aes(
          x = avg_gdp,
          y = avg_energy
-       ))+
+       )) +
   geom_point()+
   geom_smooth(method = "lm") +
   labs(
@@ -257,22 +261,69 @@ plot2 <- ggplot(simulated_data,
     subtitle = "Observed Average Energy Use",
     x = "Average GDP",
     y = NULL
-  )+
+  ) +
+  xlim(0, 100000) +
+  ylim(-5000, 20000) +
   theme_bw()
 
 plot1 + plot2 + plot_layout(nrow = 1)
 ```
 
+#### Generating Multiple Predictive Checks
+```{r}
+
+#create function to accomplish one simulation
+
+new_df <- averaged_data |>
+  filter(!is.na(avg_energy))
+
+sim_energy_data <- function(observed, lm){
+  predicted <- predict({{lm}}) 
+  simulated <- predicted + rnorm(length(predicted), 
+                                       mean = 0, 
+                                       sd = sigma({{lm}}))
+  
+  simulated_model <- lm({{observed}} ~ simulated)
+  r_squared_val <- summary(simulated_model)$r.squared
+  
+  return(r_squared_val)
+  
+}
+
+#use map_df to do it 1000 times
+r_squared_dist <- map_df(1:10000, 
+                         ~tibble(r2 = sim_energy_data(observed = new_df$avg_energy, 
+                                                      energy_gdp_model)))
+
+
+```
+
+
+```{r}
+ggplot(r_squared_dist,
+       mapping = aes(
+         x = r2
+       )) +
+  geom_histogram(
+    aes(y = after_stat(count/sum(count))
+        )
+    ) +
+  #geom_density(aes(y = after_stat(count/sum(count)))) +
+  labs(
+    x = "R-Squared value",
+    y = "Proportion",
+    title = "Distribution of R-Squared Values"
+  ) +
+  theme_bw()
+```
+
 
 ## TO-DO:
 Visualization of simulated data
-- Discussion of similarities and differences between observed and simulated -- not writing rn because im not sure if i did it right :(
+- Make sure scales are the same in both plots
+- Discussion of similarities and differences between observed and simulated
 
 R^2 distribution 
-- Uses map() to simulate many values and fit a linear regression between obs ~ sim
-- Plot of R^2
-- Discussion of R^2 and what this means for the model fit
+- Discussion of R^2 and what this means for the model fit ->
 
-- MAKE ANIMATION THEN AVERAGE
-
-- MAKE A RESIDUAL PLOT TO PROVE EQUAL VARIANCE (EQUAL VARIANCE CONDITION IN LINEAR REGRESSION)
+- MAKE A RESIDUAL PLOT TO PROVE EQUAL VARIANCE (EQUAL VARIANCE CONDITION IN LINEAR REGRESSION) -> kaatje 
