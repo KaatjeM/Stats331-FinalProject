@@ -93,7 +93,7 @@ final_data <- inner_join(energy_long,
 
 ```
 
-## Project Proposal
+## Introduction
 
 #### Gapminder: GDP Per Capita Vs. Energy Use Per Person
 
@@ -131,6 +131,18 @@ In order to apply a linear regression model to our data, we must make sure that 
 
 ```{r}
 # INSERT RESIDUAL HERE (we <3 you kaatje!!!)
+energy_gdp_model |>
+  broom::augment() |>
+  ggplot(aes(x=.fitted,
+                     y=.resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0,
+             color = "red") +
+  labs(x="Predicted Energy use",
+       y=NULL,
+       subtitle="Residual Error",
+       title="Residual-Fit Plot") +
+  theme_bw()
 ```
 
 #### Visualization 1: GIF
@@ -195,19 +207,21 @@ Our linear regression model calculated by R reveals a strong, positive, and line
 Next, we will fit a linear regression model in order to derive the estimated regression equation.
 
 ```{r}
-
-# Carry out linear regression
-
+#Regression Model
 energy_gdp_model <- lm(avg_energy ~ avg_gdp, 
                        data = averaged_data)
+```
 
-energy_gdp_model$coefficients
+CONDITIONS SECTION NEEDS TO BE MOVED HERE !!!
 
-broom::tidy(energy_gdp_model)
+```{r}
+#Regression terms
+broom::tidy(energy_gdp_model) |>
+   knitr::kable("html")
 ```
 From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. 
 
-Equation: y = 0.121*x + 34.814
+Equation:  Predicted Average Energy Use per Person = 0.121(Average GDP) + 34.814
 
 Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 0.121 kg of oil equivalent per capita (energy use). Our intercept tells us that a country with a GDP of 0 constant PPP dollars has energy use of 34.814 kg of oil equivalent per capita per person.
 
@@ -224,7 +238,8 @@ energy_gdp_model |>
   summarize(variance_energy = var(avg_energy),
             variance_fitted = var(.fitted),
             variance_residual = var(.resid)) |>
-  mutate(prop = variance_fitted/variance_energy)
+  mutate(prop = variance_fitted/variance_energy) |>
+  knitr::kable("html")
 ```
 Based on the proportion of variability that can be accounted for by our model, ~71.84% of the total variability can be attributed to our model, which is generally a good sign that our model fits well.
 
@@ -369,4 +384,6 @@ The distribution of the R^2 values seems to be approximately normal and symmetri
 
 ## TO-DO:
 
-- MAKE A RESIDUAL PLOT TO PROVE EQUAL VARIANCE (EQUAL VARIANCE CONDITION IN LINEAR REGRESSION) -> kaatje 
+-Refrences for citations: see predictive checks slides
+
+-add a conclusion section to summarize the findings

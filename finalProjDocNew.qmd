@@ -93,7 +93,7 @@ final_data <- inner_join(energy_long,
 
 ```
 
-## Project Proposal
+## Introduction
 
 #### Gapminder: GDP Per Capita Vs. Energy Use Per Person
 
@@ -187,7 +187,7 @@ broom::tidy(energy_gdp_model)
 ```
 From our regression model, we can come up with an linear equation to model the predicted values of energy use with GDP per capita inputs. 
 
-Equation: y = 5.916165*x + 5114.215069
+Equation: predicted energy use per person = 0.121(Average GDP) + 34.814
 
 Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 5.916165 kg of oil equivalent per capita (energy use).
 
@@ -202,7 +202,8 @@ energy_gdp_model |>
             variance_fitted = var(.fitted),
             variance_residual = var(.resid)) |>
   mutate(prop = (variance_energy + variance_fitted) / 
-           (variance_energy + variance_fitted + variance_residual))
+           (variance_energy + variance_fitted + variance_residual)) |>
+  knitr::kable("html")
 ```
 Based on the proportion of variability that can be accounted for by our model, ~85.92% of the total variability can be attributed to our model, which is generally a good sign that our model fits well.
 
@@ -320,7 +321,6 @@ ggplot(r_squared_dist,
 
 ## TO-DO:
 Visualization of simulated data
-- Make sure scales are the same in both plots
 - Discussion of similarities and differences between observed and simulated
 
 R^2 distribution 
