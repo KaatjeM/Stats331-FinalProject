@@ -14,7 +14,6 @@ execute:
   warning: false
 ---
 ```{r setup}
-
 # Load packages
 
 library(tidyverse)
@@ -107,11 +106,11 @@ In particular, our group decided to investigate the relationship between GDP Per
 
 #### Data set #1: GDP Per Capita
 
-The data set gdp_pcap.csv records the GDP per capita for various countries in a given year, or the value of everything produced in a country each year, divided by the country's population.This particular data sets records the GDP per capita of 195 countries in each year from 1800 to 2023, as well as the predicted GDP per capita in each year from 2024 until 2100. Gapminder labels the units of measurement for GDP per capita as constant PPP (Purchasing Power Parity) dollars. There are 195 rows in this data set, each one representing a different country, and 302 columns, each one representing a different year.
+The data set `gdp_pcap.csv` records the GDP per capita for various countries in a given year, or the value of everything produced in a country each year, divided by the country's population.This particular data sets records the GDP per capita of 195 countries in each year from 1800 to 2023, as well as the predicted GDP per capita in each year from 2024 until 2100. Gapminder labels the units of measurement for GDP per capita as constant PPP (Purchasing Power Parity) dollars. There are 195 rows in this data set, each one representing a different country, and 302 columns, each one representing a different year.
 
 #### Data set #2: Energy Use per Person
 
-The dataset energy_use_per_person.csv records the energy use per person in various countries, for each year from 1960 to 2013. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. Gapminder labels the units of measurement for energy use per person as kg of oil equivalent per capita. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
+The dataset `energy_use_per_person.csv` records the energy use per person in various countries, for each year from 1960 to 2013. In this case, energy use per person is referring to the use of primary energy before transformation to other end-use fuels. Gapminder labels the units of measurement for energy use per person as kg of oil equivalent per capita. This data set has 173 rows, with each row representing a different country, and 57 columns, with each column representing a different year.
 
 #### Hypothesized Relationship
 
@@ -119,7 +118,7 @@ We are setting our explanatory variable to be GDP per capita, and our response v
 
 #### Data Cleaning Process and Decision-Making
 
-Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the difficult-to-read columns that they were in before. We also decided that in the GDP per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1960, as well as anything after 2013. Additionally, the observations in the GDP per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said "4k" to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a function to remove all instances of the letter "k" and multiply the value by 1,000 to represent the "k" numerically.
+Since each year in both of the data sets was its own separate column, making the data very difficult to analyze, we decided to pivot the data from wide to long format. This way, we could see each year as its own observation, rather than the difficult-to-read columns that they were in before. We also decided that in the GDP per capita data set, we wanted to get rid of any years that were not consistent with the years recorded in the energy use per person data set, so we made the decision to delete any data recorded before 1975, as well as anything after 2013. Additionally, the observations in the GDP per capita data set were not consistent. Some of the observations were number values, and some of them had abbreviations using character variables. For example, some of the observations said "4k" to represent a GDP of $4,000, so in order to make the data consistent for the purpose of analyzing, we used a function to remove all instances of the letter "k" and multiply the value by 1,000 to represent the "k" numerically. After pivoting and cleaning both data sets, we joined the them using an inner join so that any countries with no data for either variable in a specific year would not be included. This final data set contains 6630 observations (including 170 unique countries) and 4 variables: Country, Year, GDP, and energy use.
 
 ## Data Visualizations
 
@@ -128,7 +127,6 @@ Since each year in both of the data sets was its own separate column, making the
 To  explore the relationship between the two, we decided to create a GIF comparing GDP per capita and energy use across the different years of interest. This helps to visualize the relationship between the two, of course, but also how that relationship changes over the years, if it changes at all.
 
 ```{r}
-
 # Code to make GIF animation
 
 gif <- final_data |>
@@ -153,10 +151,9 @@ The GIF shows that the relationship between GDP per capita and energy use per pe
 
 #### Visualization 2: Scatterplot
 
-Because the relationship between GDP and energy use was similar over the years, we decided to average the data points over years for each country and create a scatter plot with average GDP in the x-axis and average energy use in the y-axis. We will be using this averaged data set moving on.
+Because the relationship between GDP and energy use was similar over the years, we decided to average the data points over years for each country and create a scatter plot with average GDP in the x-axis and average energy use in the y-axis. We will be using this averaged data set moving forward.
 
 ```{r}
-
 # Average values across the years
 
 averaged_data <- final_data |>
@@ -203,7 +200,7 @@ energy_gdp_model <- lm(avg_energy ~ avg_gdp,
 
 #### Linear Regression Conditions
 
-In order to apply an accurate linear regression model to our data, we must make sure that our data satisfies the four conditions of linear regression. Our first condition, linearity, is met, in this case, because the relationship between the explanatory and response variable is proportional to one another. Our second condition, independence, is met because the result of GDP per capita each year is independent of one another for each recorded observation, and energy use per person each year is independent of one another for each recorded observation. Our third condition, normality, is met because for both GDP per capita and energy use per person have more than 30 observations, by the Central Limit Theorem. Lastly, our fourth condition of equal variance is met, because our residual plot shows no apparent pattern. (Residual plot shown below).
+In order to apply an accurate linear regression model to our data, we must make sure that our data satisfies the four conditions of linear regression. Our first condition, linearity, is met, in this case, because the relationship between the explanatory and response variable is proportional to one another. Our second condition, independence, is met because the result of GDP per capita each year is independent of one another for each recorded observation, and energy use per person each year is independent of one another for each recorded observation. Our third condition, normality, is met because for both GDP per capita and energy use per person have more than 30 observations, by the Central Limit Theorem. Lastly, our fourth condition of equal variance is not necessarily met, because our residual plot "fans out". However, most of the data points that result in this fanning are outliers as discussed earlier and the majority of these data are within the range where equal variances are met. Therefore, we feel comfortable continuing the analysis. (Residual plot shown below).
 
 ```{r}
 # Residual Plot
@@ -234,14 +231,13 @@ From our regression model, we can come up with an linear equation to model the p
 
 Equation:  Predicted Average Energy Use per Person = 0.121(Average GDP) + 34.814
 
-Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 0.121 kg of oil equivalent per capita (energy use). Our intercept tells us that a country with a GDP of 0 constant PPP dollars has energy use of 34.814 kg of oil equivalent per capita per person.
+Put more simply, our linear regression model tells us that for every 1 unit increase in constant PPP dollars (GDP), the predicted energy use per person will increase by 0.121 kg of oil equivalent per capita (energy use). Our intercept tells us that a country with a GDP of 0 constant PPP dollars would be expected to have energy use of 34.814 kg of oil equivalent per capita per person.
 
 #### Model Fit
 
 To test how well this linear regression model fits the data, we will look at the amount of variability that we can account for with our model.
 
 ```{r}
-
 # Display variances and calculate proportion of var
 
 energy_gdp_model |>
@@ -263,17 +259,15 @@ Next, we will create simulated data from our linear model in order to compare ho
 ```{r}
 
 # Set seed for consistent output
-
 set.seed(1234)
 
 # Create simulated data
-
 simulated_data <- averaged_data |>
   
   # Remove NA values
   filter(!is.na(avg_energy)) |>
   
-  # Mutate (add column) with predict to obtain predicted
+  # Mutate (add column) with predict to obtain simulated
   mutate(predicted = predict(energy_gdp_model)) |>
   mutate(simulated = predicted + rnorm(length(predicted), 
                                        mean = 0, 
@@ -342,12 +336,10 @@ Both scatterplots have that strong, positive, linear relationship, but the scatt
 To further analyze how well our regression model describes the relationship between GDP and energy use, we have generated 10,000 simulated datasets that we would expect to see if our regression model accurately described our relationship of interest. From there, we will then regress the observed data against each simulated data set and keep the R^2 value from each regression.
 
 ```{r}
-
-# Create function to accomplish one simulation
-
 new_df <- averaged_data |>
   filter(!is.na(avg_energy))
 
+# Create function to accomplish one simulation
 sim_energy_data <- function(observed, lm){
   predicted <- predict({{lm}}) 
   simulated <- predicted + rnorm(length(predicted), 
@@ -362,18 +354,14 @@ sim_energy_data <- function(observed, lm){
 }
 
 # Use map_df to do it 1000 times
-
 r_squared_dist <- map_df(1:10000, 
                          ~tibble(r2 = sim_energy_data(observed = new_df$avg_energy, 
                                                       energy_gdp_model)))
-
-
 ```
 
 To visualize the R^2 values, we will create a histogram of the R^2 values to see how well our model describes our relationship of interest.
 
 ```{r}
-
 # Plot to distribute R^2 values as histogram
 
 ggplot(r_squared_dist,
@@ -384,7 +372,6 @@ ggplot(r_squared_dist,
     aes(y = after_stat(count/sum(count))
         )
     ) +
-  #geom_density(aes(y = after_stat(count/sum(count)))) +
   labs(
     x = "R-Squared value",
     y = "Proportion",
@@ -400,4 +387,4 @@ The distribution of the R^2 values seems to be approximately normal and symmetri
 Overall, there is a relationship between Energy Use and GDP per capita. This relationship is positive, strong, and linear, and we believe that this report has proven this relationship.
 
 ## Refrences and Citations
-https://www.gapminder.org/data/
+[https://www.gapminder.org/data/](https://www.gapminder.org/data/)
